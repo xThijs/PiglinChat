@@ -11,6 +11,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedMetaData;
 import net.luckperms.api.track.Track;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -118,21 +119,18 @@ public class LPCChatRenderer implements ChatRenderer {
         return miniMessage.deserialize(format);
     }
 
-    private boolean containsLink(String message) {
-        String urlRegex = "(https?://[\\w-]+(\\.[\\w-]+)+(:\\d+)?(/[\\w-./?%&=]*)?)";
-        return message.matches(".*" + urlRegex + ".*");
-    }
-
     private String replaceUrlsWithLinks(String message, Player player) {
         String urlRegex = "(https?://[\\w-]+(\\.[\\w-]+)+(:\\d+)?(/[\\w-./?%&=]*)?)";
         String piglinRegex = "(https?://)?([a-zA-Z0-9-]+\\.)?piglincraft\\.com(/[\\w-./?%&=]*)?";
 
-        for (String part : message.split(" ")) {
-            if (part.matches(piglinRegex)) {
-                return message.replaceAll(urlRegex, "<click:open_url:\"$1\"><hover:show_text:'<color:#f2ff00>✔ Click to go to URL\n\nThis is an official PiglinCraft URL. \nYou can enter this safely.</color>'><color:#f2ff00><u>$1 ✔</u></color></hover></click>");
-            }
-        }
-        return message.replaceAll(urlRegex, "<click:open_url:\"$1\"><hover:show_text:'<color:#d6d6d6>Click to go to URL</color>\n\n<red>⚠ Even though this message was sent \nby staff, always look out! Never fill in\nyour personal credentials.</red>'><u>$1</u></hover></click>");
+        // Replace piglincraft links with special formatting
+        // Replace all other links with a warning message
+        message = message.replaceAll(urlRegex, "<click:open_url:\"$0\"><hover:show_text:'<color:#d6d6d6>Click to go to URL</color>\n\n<red>⚠ Even though this message was sent \nby staff, always look out! Never fill in\nyour personal credentials.</red>'><u>$0</u></hover></click>");
+
+        message = message.replaceAll(piglinRegex, "<click:open_url:\"$0\"><hover:show_text:'<color:#f2ff00>✔ Click to go to URL\n\nThis is an official PiglinCraft URL. \nYou can enter this safely.</color>'><color:#f2ff00><u>$0 ✔</u></color></hover></click>");
+
+        return message;
     }
+
 
 }

@@ -2,9 +2,14 @@ package de.ayont.lpc.listener;
 
 import de.ayont.lpc.LPC;
 import de.ayont.lpc.renderer.LPCChatRenderer;
+import de.ayont.lpc.util.LinkUtil;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,6 +32,15 @@ public class AsyncChatListener implements Listener {
     public void onChat(AsyncChatEvent event) {
 
         final Player player = event.getPlayer();
+        final String plainMessage = LegacyComponentSerializer.legacyAmpersand().serialize(event.message());
+        final MiniMessage miniMessage = MiniMessage.miniMessage();
+
+        if (!player.hasPermission("piglinchat.links") && LinkUtil.containsNonPiglinLink(plainMessage)) {
+            player.sendMessage(miniMessage.deserialize("<red>⚠ You are not allowed to send links that are not from PiglinCraft!"));
+            Bukkit.broadcast(miniMessage.deserialize("<red>⚠ <yellow>" + player.getName() + " <red>tried to send a link in chat! (Message: " + plainMessage + ")"), "piglinchat.notify");
+            event.setCancelled(true);
+            return;
+        }
 
         if(!plugin.getConfig().getBoolean("use-item-placeholder", false) || !player.hasPermission("lpc.itemplaceholder")){
             event.renderer(lpcChatRenderer);
