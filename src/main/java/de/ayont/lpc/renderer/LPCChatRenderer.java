@@ -69,6 +69,8 @@ public class LPCChatRenderer implements ChatRenderer {
             }
         }
 
+        plainMessage = replaceUrlsWithLinks(plainMessage, source);
+
         String formatKey = "group-formats." + group;
         String format = plugin.getConfig().getString(formatKey);
 
@@ -115,4 +117,22 @@ public class LPCChatRenderer implements ChatRenderer {
 
         return miniMessage.deserialize(format);
     }
+
+    private boolean containsLink(String message) {
+        String urlRegex = "(https?://[\\w-]+(\\.[\\w-]+)+(:\\d+)?(/[\\w-./?%&=]*)?)";
+        return message.matches(".*" + urlRegex + ".*");
+    }
+
+    private String replaceUrlsWithLinks(String message, Player player) {
+        String urlRegex = "(https?://[\\w-]+(\\.[\\w-]+)+(:\\d+)?(/[\\w-./?%&=]*)?)";
+        String piglinRegex = "(https?://)?([a-zA-Z0-9-]+\\.)?piglincraft\\.com(/[\\w-./?%&=]*)?";
+
+        for (String part : message.split(" ")) {
+            if (part.matches(piglinRegex)) {
+                return message.replaceAll(urlRegex, "<click:open_url:\"$1\"><hover:show_text:'<color:#f2ff00>✔ Click to go to URL\n\nThis is an official PiglinCraft URL. \nYou can enter this safely.</color>'><color:#f2ff00><u>$1 ✔</u></color></hover></click>");
+            }
+        }
+        return message.replaceAll(urlRegex, "<click:open_url:\"$1\"><hover:show_text:'<color:#d6d6d6>Click to go to URL</color>\n\n<red>⚠ Even though this message was sent \nby staff, always look out! Never fill in\nyour personal credentials.</red>'><u>$1</u></hover></click>");
+    }
+
 }
