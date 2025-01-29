@@ -121,16 +121,14 @@ public class LPCChatRenderer implements ChatRenderer {
 
     private String replaceUrlsWithLinks(String message, Player player) {
         String urlRegex = "(https?://[\\w-]+(\\.[\\w-]+)+(:\\d+)?(/[\\w-./?%&=]*)?)";
-        String piglinRegex = "(https?://)?([a-zA-Z0-9-]+\\.)?piglincraft\\.com(/[\\w-./?%&=]*)?";
+        String piglinRegex = "(?:https?://)?([a-zA-Z0-9-]+\\.)?piglincraft\\.com(/[\\w-./?%&=]*)?";
 
-        // Replace piglincraft links with special formatting
-        // Replace all other links with a warning message
         message = message.replaceAll(urlRegex, "<click:open_url:\"$0\"><hover:show_text:'<color:#d6d6d6>Click to go to URL</color>\n\n<red>⚠ Even though this message was sent \nby staff, always look out! Never fill in\nyour personal credentials.</red>'><u>$0</u></hover></click>");
-
-        message = message.replaceAll(piglinRegex, "<click:open_url:\"$0\"><hover:show_text:'<color:#f2ff00>✔ Click to go to URL\n\nThis is an official PiglinCraft URL. \nYou can enter this safely.</color>'><color:#f2ff00><u>$0 ✔</u></color></hover></click>");
+        message = message.replaceAll(piglinRegex, "<click:open_url:\"https://$0\"><hover:show_text:'<color:#f2ff00>✔ Click to go to URL\n\nThis is an official PiglinCraft URL. \nYou can enter this safely.</color>'><color:#f2ff00><u>https://$0 ✔</u></color></hover></click>");
 
         return message;
     }
+
 
 
 }
